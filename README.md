@@ -38,10 +38,69 @@ Music recordings often suffer from audio quality issues such as excessive reverb
 
 ## Installation
 
-```bash
-//TODO
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/amaai-lab/SonicMaster.git
+   cd SonicMaster
+   ```
 
+2. **Install dependencies:**
+
+   Before installing the Python packages, you may need to install `libsndfile`, a system dependency for the `soundfile` library.
+
+   - On Debian/Ubuntu:
+     ```bash
+     sudo apt-get install libsndfile1
+     ```
+   - On Fedora:
+     ```bash
+     sudo dnf install libsndfile
+     ```
+   - On macOS (using Homebrew):
+     ```bash
+     brew install libsndfile
+     ```
+
+   Then, install the required Python packages using pip:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## How to Use
+
+1. **Download the Pre-trained Model:**
+
+   Download the model checkpoints from the [Hugging Face model page](https://huggingface.co/amaai-lab/). You will get a `model.safetensors` file.
+
+2. **Prepare Your Data:**
+
+   Create a JSONL file (e.g., `my_songs.jsonl`) where each line is a JSON object containing the path to an audio file and a text prompt. The script expects the keys `location` and `prompt`.
+
+   Example `my_songs.jsonl`:
+   ```json
+   {"location": "/path/to/your/song1.wav", "prompt": "Remove the reverb and boost the bass."}
+   {"location": "/path/to/your/song2.mp3", "prompt": "Increase the brightness and clarity of the vocals."}
+   ```
+
+3. **Configure the Inference Script:**
+
+   Open the `inference_fullsong.py` script and modify the following lines to point to your data and desired output directory:
+
+   ```python
+   # Line 135
+   jsonl_path = "my_songs.jsonl"
+   # Line 137
+   output_dir = "/path/to/your/output/folder"
+   ```
+
+4. **Run Inference:**
+
+   Execute the inference script, providing the path to the downloaded model checkpoint:
+
+   ```bash
+   python inference_fullsong.py --model_ckpt /path/to/your/downloaded/checkpoint/
+   ```
+   The script will process the audio files specified in your JSONL file and save the enhanced audio to the output directory you specified.
 
 
 ## Citation
