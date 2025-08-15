@@ -46,19 +46,12 @@ Music recordings often suffer from audio quality issues such as excessive reverb
 
 2. **Install dependencies:**
 
-   Before installing the Python packages, you may need to install `libsndfile`, a system dependency for the `soundfile` library.
+   Before installing the Python packages, you need to install `libsndfile`, a system dependency for the `soundfile` library. On Windows, the recommended way to do this is by using Conda.
 
-   - On Debian/Ubuntu:
+   - **On Windows (using Conda):**
+     If you don't have Conda, you can install it from the [official website](https://www.anaconda.com/products/distribution). Once Conda is installed, open a Conda-enabled terminal and run the following command:
      ```bash
-     sudo apt-get install libsndfile1
-     ```
-   - On Fedora:
-     ```bash
-     sudo dnf install libsndfile
-     ```
-   - On macOS (using Homebrew):
-     ```bash
-     brew install libsndfile
+     conda install -c conda-forge libsndfile
      ```
 
    Then, install the required Python packages using pip:
@@ -102,6 +95,54 @@ Music recordings often suffer from audio quality issues such as excessive reverb
    ```
    The script will process the audio files specified in your JSONL file and save the enhanced audio to the output directory you specified.
 
+## How to Train
+
+1.  **Download the Dataset:**
+
+    You can download the SonicMaster dataset from the [Hugging Face dataset page](https://huggingface.co/datasets/amaai-lab/SonicMasterDataset). This dataset contains paired clean and degraded audio samples with corresponding text prompts.
+
+2.  **Prepare Your Data:**
+
+    The training script expects the data to be in JSONL format, where each line is a JSON object. You will need to create three files: `train.jsonl`, `validation.jsonl`, and `test.jsonl`. Each JSON object should contain the following keys:
+    - `prompt`: The text prompt for the audio enhancement.
+    - `alt_prompt`: An alternative text prompt.
+    - `original_location`: The file path to the clean (original) audio file.
+    - `location`: The file path to the degraded audio file.
+    - `duration`: The duration of the audio in seconds.
+
+    Example `train.jsonl` entry:
+    ```json
+    {"prompt": "Fix the distorted guitar and enhance the vocals.", "alt_prompt": "Clean up the guitar sound and make the vocals clearer.", "original_location": "/path/to/clean/audio.wav", "location": "/path/to/degraded/audio.wav", "duration": 30.0}
+    ```
+
+3.  **Configure the Training:**
+
+    Open the `configs/tangoflux_config.yaml` file and modify the paths to your dataset files. You should also review and adjust other training parameters like `per_device_batch_size`, `learning_rate`, and `num_train_epochs` to fit your setup.
+
+    ```yaml
+    # In configs/tangoflux_config.yaml
+    paths:
+      train_file: "/path/to/your/train.jsonl"
+      val_file: "/path/to/your/validation.jsonl"
+      test_file: "/path/to/your/test.jsonl"
+      infer_file: "/path/to/your/test.jsonl" # Or another file for inference during training
+      resume_from_checkpoint: ""
+      output_dir: "outputs/"
+    ```
+
+4.  **Run Training:**
+
+    The training is performed using Hugging Face's `accelerate` library to support distributed training. Before running the script, you need to configure `accelerate`. If you haven't configured it yet, run:
+    ```bash
+    accelerate config
+    ```
+    Follow the prompts to configure `accelerate` for your system. Once configured, you can start the training with the following command:
+
+    ```bash
+    accelerate launch train_ptload_inference.py --config configs/tangoflux_config.yaml
+    ```
+
+    The script will start training the model, and you can monitor the progress in your terminal. Checkpoints and logs will be saved to the `output_dir` specified in your config file.
 
 ## Citation
 
